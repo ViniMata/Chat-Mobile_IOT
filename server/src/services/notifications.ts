@@ -42,21 +42,25 @@ async function resolveTokens(userIds: string[]): Promise<string[]> {
   return devices.flatMap(snapshot => snapshot.docs.map(doc => (doc.data() as StoredDevice).token));
 }
 async function sendExpoPush(token: string, conversationId: string, conversationType: 'direct' | 'group'): Promise<boolean> {
-  const response = await fetch('https://exp.host/--/api/v2/push/send', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(process.env.EXPO_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` } : {}) }, body: JSON.stringify({ to: token, sound: 'default', title: 'Nova mensagem', body: 'Você recebeu uma nova mensagem', data: { conversationId, conversationType } }) });
+  const response = await fetch('https://exp.host/--/api/v2/push/send', { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(process.env.EXPO_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` } : {}) }, body: JSON.stringify({ to: token, channelId: 'default', priority: 'high', sound: 'default', title: 'Nova mensagem', body: 'Você recebeu uma nova mensagem', data: { conversationId, conversationType } }) });
   const payload = await response.json() as { data?: { status?: string; id?: string; details?: { error?: string } } };
   if (payload.data?.details?.error === 'DeviceNotRegistered') {
     const devices = await adminFirestore.collectionGroup('devices').where('token', '==', token).get();
     await Promise.all(devices.docs.map(device => device.ref.update({ enabled: false })));
     return false;
   }
-  if (!response.ok || payload.data?.status !== 'ok' || !payload.data.id) return false;
+  if (!response.ok || payload.data?.status !== 'ok' || !payload.data.id) {
+    const errorCode = payload.data?.details?.error;
+    console.error('Expo push rejected', { status: response.status, code: typeof errorCode === 'string' && /^[\w-]{1,80}$/.test(errorCode) ? errorCode : 'push_rejected' });
+    return false;
+  }
   await adminFirestore.collection('pushReceipts').doc(payload.data.id).set({ token, createdAt: Date.now() });
   return true;
 }
 export async function checkPushReceipts(): Promise<void> {
   const pending = await adminFirestore.collection('pushReceipts').where('createdAt', '<', Date.now() - 15 * 60 * 1000).limit(100).get();
   if (pending.empty) return;
-  const response = await fetch('https://exp.host/--/api/v2/push/getReceipts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: pending.docs.map(doc => doc.id) }) });
+  const response = await fetch('https://exp.host/--/api/v2/push/getReceipts', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(process.env.EXPO_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` } : {}) }, body: JSON.stringify({ ids: pending.docs.map(doc => doc.id) }) });
   if (!response.ok) return;
   const payload = await response.json() as { data?: Record<string, { status: string; details?: { error?: string } }> };
   for (const receipt of pending.docs) {

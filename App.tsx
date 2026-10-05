@@ -30,7 +30,14 @@ export default function App(): React.JSX.Element {
     });
     return () => { active = false; unsubscribe(); };
   }, []);
-  useEffect(() => { if (user) void registerPushToken().catch(() => undefined); }, [user]);
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    void registerPushToken().catch((error: unknown) => {
+      if (active) Alert.alert('Notificações indisponíveis', error instanceof Error ? error.message : 'Não foi possível configurar as notificações deste dispositivo.');
+    });
+    return () => { active = false; };
+  }, [user]);
   const groupId = open?.type === 'group' ? open.id : null;
   useEffect(() => {
     if (!groupId || !user) return;
