@@ -71,7 +71,13 @@ app.get('/users/:uid', async (request: AuthenticatedRequest, response, next) => 
 app.patch('/groups/:id', async (request: AuthenticatedRequest, response, next) => {
   try { if (!request.body || typeof request.body !== 'object' || Array.isArray(request.body)) { response.status(400).json({ error: 'Dados inválidos.' }); return; } await editGroup(String(request.params.id), request.uid!, request.body as Record<string, unknown>); response.status(204).send(); } catch (error) { next(error); }
 });
-app.use((_error: unknown, _request: Request, response: Response, _next: NextFunction) => { response.status(400).json({ error: 'Não foi possível concluir a operação. Verifique seus dados e permissões.' }); });
+app.use((error: unknown, request: Request, response: Response, _next: NextFunction) => {
+  // Log only a bounded error code, never tokens, payloads or credential messages.
+  const rawCode = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : 'operation_failed';
+  const code = /^[\w/.-]{1,80}$/.test(rawCode) ? rawCode : 'operation_failed';
+  console.error('API operation failed', { method: request.method, route: request.route?.path ?? 'unknown', code });
+  response.status(400).json({ error: 'Não foi possível concluir a operação. Verifique seus dados e permissões.' });
+});
 function isNotificationRequest(value: unknown): value is { conversationId: string; messageId: string } { if (typeof value !== 'object' || value === null) return false; const input = value as Record<string, unknown>; return typeof input.conversationId === 'string' && /^[\w-]{1,256}$/.test(input.conversationId) && typeof input.messageId === 'string' && /^[\w-]{1,128}$/.test(input.messageId); }
 function isConversationAccessRequest(value: unknown): value is { conversationId: string; type: 'direct' | 'group' } { if (typeof value !== 'object' || value === null) return false; const input = value as Record<string, unknown>; return typeof input.conversationId === 'string' && /^[\w-]{1,256}$/.test(input.conversationId) && (input.type === 'direct' || input.type === 'group'); }
 app.listen(Number(process.env.PORT ?? 3000), () => console.log('Notification API started.'));

@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, firestore } from './firebase';
 import { ChatMessage } from '../types/domain';
+import { apiRequest } from './api';
 let registeredDevice: { uid: string; id: string } | null = null;
 
 export async function registerPushToken(): Promise<string | null> {
@@ -32,10 +33,7 @@ export async function requestMessageNotification(message: ChatMessage): Promise<
   if (!user) return;
   const apiUrl = process.env.EXPO_PUBLIC_NOTIFICATION_API_URL;
   if (!apiUrl || apiUrl.includes('sua-api')) return;
-  const idToken = await user.getIdToken();
-  const response = await fetch(`${apiUrl}/notifications/messages`, {
-    method: 'POST', headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ conversationId: message.conversationId, messageId: message.id }),
+  await apiRequest('/notifications/messages', 'POST', {
+    conversationId: message.conversationId, messageId: message.id,
   });
-  if (!response.ok) throw new Error('A API de notificações não aceitou a solicitação.');
 }

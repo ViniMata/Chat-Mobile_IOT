@@ -89,7 +89,25 @@ export function ChatScreen({ conversation, uid, onBack, onGroupSettings }: { con
   const [members, setMembers] = useState<DirectoryUser[]>([]);
   useEffect(() => { if (conversation.group) void Promise.all(conversation.group.memberIds.map(getUserProfile)).then(items => setMembers(items.filter((item): item is DirectoryUser => item !== null))).catch(() => undefined); }, [conversation.group]);
   useEffect(() => { if (error) Alert.alert('Chat', error); }, [error]);
-  const submit = useCallback(async () => { if (!text.trim()) return; try { setSending(true); const message = await sendMessage({ conversationId: conversation.id, conversationType: conversation.type, senderId: uid, text: text.trim(), target: targetUid ? { type: 'member', memberId: targetUid } : generalTarget(), mentionedUserIds: targetUid ? [targetUid] : [] }); setText(''); try { await requestMessageNotification(message); } catch { Alert.alert('Notificação', 'Mensagem enviada. A notificação não pôde ser solicitada.'); } } catch { Alert.alert('Mensagem', 'Falha ao enviar. O texto foi preservado para tentar novamente.'); } finally { setSending(false); } }, [conversation.id, conversation.type, text, uid, targetUid]);
+  const submit = useCallback(async () => {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    let message;
+    try {
+      message = await sendMessage({ conversationId: conversation.id, conversationType: conversation.type, senderId: uid, text: text.trim(), target: targetUid ? { type: 'member', memberId: targetUid } : generalTarget(), mentionedUserIds: targetUid ? [targetUid] : [] });
+      setText('');
+    } catch (sendError) {
+      Alert.alert('Mensagem não enviada', `O texto foi preservado. ${errorText(sendError)}`);
+      return;
+    } finally {
+      setSending(false);
+    }
+    try {
+      await requestMessageNotification(message);
+    } catch (notificationError) {
+      Alert.alert('Mensagem enviada com sucesso', `A mensagem já está na conversa. Não é necessário reenviar. Apenas o aviso push falhou.\n\n${errorText(notificationError)}`);
+    }
+  }, [conversation.id, conversation.type, text, uid, targetUid, sending]);
   return <Screen style={styles.screen}>{error && <Text accessibilityRole="alert" style={{ color: '#b91c1c' }}>{error}</Text>}<View style={styles.header}><Back title={conversation.title} onBack={onBack} /><Pressable onPress={onGroupSettings}><Avatar uri={conversation.group?.photoUrl ?? conversation.photoUrl} /></Pressable></View>{loading ? <Loading /> : <FlatList data={messages} keyExtractor={item => item.id} ListEmptyComponent={<Empty text="Ainda não há mensagens." />} renderItem={({ item }) => <View style={[styles.bubble, item.senderId === uid ? styles.mine : styles.theirs]}>{conversation.type === 'group' && <Text style={styles.label}>{members.find(member => member.id === item.senderId)?.name ?? 'Integrante'}</Text>}<Text style={styles.messageText}>{item.text}</Text>{item.target.type === 'member' && <Text style={styles.muted}>Para: {members.find(member => member.id === (item.target.type === 'member' ? item.target.memberId : ''))?.name ?? 'Integrante'}</Text>}<Text style={styles.muted}>{new Date(item.createdAt).toLocaleTimeString()}</Text></View>} />}{conversation.type === 'group' && <ScrollView horizontal style={{ flexGrow: 0, maxHeight: 64 }} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}><Button title="Todos" onPress={() => setTargetUid(null)} />{members.filter(member => member.id !== uid).map(member => <Button key={member.id} title={`${targetUid === member.id ? '✓ ' : '@'}${member.name}`} onPress={() => setTargetUid(member.id)} />)}</ScrollView>}<View style={styles.composer}><TextInput style={styles.composerInput} placeholder="Mensagem" value={text} onChangeText={setText} multiline /><Button title={sending ? '...' : 'Enviar'} disabled={sending || loading || !!error} onPress={() => void submit()} /></View></Screen>;
 }
 

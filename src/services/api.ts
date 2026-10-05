@@ -6,7 +6,7 @@ export async function apiRequest<T>(path: string, method = 'GET', body?: unknown
   if (!auth.currentUser) throw new Error('Sessão ausente. Entre novamente.');
   const token = await auth.currentUser.getIdToken();
   let response: Response;
-  try { response = await fetch(`${base.replace(/\/$/, '')}${path}`, { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }); }
+  try { response = await fetch(`${base.trim().replace(/\/+$/, '')}${path}`, { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }); }
   catch { throw new Error('Não foi possível conectar à API. Confira a URL, o servidor e a conexão.'); }
   if (!response.ok) {
     if (response.status === 401) throw new Error('API recusou a sessão (401). Entre novamente e confira se a API usa o mesmo projeto Firebase.');
