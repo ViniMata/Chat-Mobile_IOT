@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "conversationAccess": { "$conversationId": { "$uid": { ".read": "auth != null && auth.uid === $uid", ".write": false } } },
+    "messages": { "$conversationId": { ".read": "auth != null && root.child('conversationAccess').child($conversationId).child(auth.uid).val() === true", "$messageId": { ".write": "auth != null && !data.exists() && newData.child('senderId').val() === auth.uid && root.child('conversationAccess').child($conversationId).child(auth.uid).val() === true", ".validate": "newData.hasChildren(['id','conversationId','conversationType','senderId','text','createdAt']) && newData.child('conversationId').val() === $conversationId && newData.child('text').isString()" } } }
+  }
+}

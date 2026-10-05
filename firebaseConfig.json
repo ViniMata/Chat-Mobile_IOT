@@ -1,0 +1,9 @@
+{
+  "apiKey": "AIzaSyDCyTeF_emrxx9FarJJf5g05eflXWn28Zo",
+  "authDomain": "chat-mobile-firebase.firebaseapp.com",
+  "projectId": "chat-mobile-firebase",
+  "storageBucket": "chat-mobile-firebase.firebasestorage.app",
+  "messagingSenderId": "1036109116574",
+  "appId": "1:1036109116574:web:cc92aaf0885839f7b8b78f",
+  "databaseURL": "https://chat-mobile-firebase-default-rtdb.firebaseio.com"
+}
