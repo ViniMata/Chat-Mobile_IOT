@@ -72,7 +72,6 @@ A URL do RTDB no cliente e em `FIREBASE_DATABASE_URL` da API deve apontar para o
 
 Crie um upload preset **unsigned** no painel do Cloudinary, restrito a imagens e com limite de tamanho, e configure seu cloud name e preset nas variáveis públicas do app. Não coloque API Secret no cliente. A seleção solicita permissão de fotos quando necessária. O arquivo é enviado ao Cloudinary; apenas `photoUrl` HTTPS fica no Firestore, nunca Base64 ou o binário. O avatar padrão é exibido quando não há imagem ou quando seu carregamento falha.
 
-O guia completo está em [CONFIGURACAO_E_ENTREGA.md](CONFIGURACAO_E_ENTREGA.md).
 
 ## Executar o aplicativo
 
@@ -263,4 +262,4 @@ Mensagem gravada e solicitação de push são etapas distintas. Se o aviso push 
 
 Configurações públicas Firebase podem ser versionadas. `.env`, chaves privadas e JSON de conta de serviço não podem. Credenciais administrativas ficam somente no servidor e nos secrets da hospedagem. Revogue qualquer chave exposta.
 
-Os testes unitários e exports não substituem validação física Android/iOS, testes das regras no Emulator ou testes de concorrência. A auditoria está em [AUDIT.md](AUDIT.md). Idempotência de push sem recuperação automática e locks persistentes após falha de processo ainda têm limitações operacionais, documentadas no guia de entrega.
+Os testes unitários e exports não substituem validação física Android/iOS, testes das regras no Emulator ou testes de concorrência. A idempotência de push não possui recuperação automática: uma falha após reservar o envio pode deixá-lo incompleto. Se a API cair durante uma operação com lock, um operador deve conferir os integrantes no Firestore, reconciliar `conversationAccess` no RTDB e só então remover o lock correspondente em `conversationLocks`. Nunca remova locks de operações ainda em andamento.
