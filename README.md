@@ -2,6 +2,8 @@
 
 Aplicativo acadêmico de chat individual e em grupo, desenvolvido com React Native, Expo e TypeScript. Usa Firebase Authentication para autenticação, Firestore para perfis e conversas, Realtime Database para mensagens e Cloudinary para fotos.
 
+**Plataformas demonstradas:** Android (build própria) e navegador. O recebimento de push Android está registrado nas evidências abaixo. iOS/APNs não foi configurado nem validado por falta de acesso a uma conta Apple Developer; essa limitação não equivale ao atendimento do requisito iOS do enunciado.
+
 ## Integrantes
 
 Preencher antes da entrega: nomes completos e RMs de todos os integrantes. Segundo o enunciado, a ausência dessa identificação implica nota zero.
@@ -110,7 +112,9 @@ Crie um Web Service conectado ao repositório:
 
 Cadastre no painel as variáveis de `server/.env.example`. Não envie arquivos privados ao GitHub. Configure no `.env` da raiz a URL HTTPS resultante, sem `/health`. O plano gratuito pode suspender a API quando ociosa, atrasando o primeiro acesso e pausando o processamento periódico de recibos.
 
-**URL pública da API:** preencher com a URL real do serviço publicado.
+**URL pública da API:** https://chat-mobile-iot.onrender.com
+
+**Health check:** [GET /health](https://chat-mobile-iot.onrender.com/health). A captura abaixo registra a resposta `{"status":"ok"}` no momento do teste, não uma garantia de disponibilidade contínua.
 
 **Repositório:** [ViniMata/Chat-Mobile_IOT](https://github.com/ViniMata/Chat-Mobile_IOT).
 
@@ -152,13 +156,13 @@ O fluxo é: persistir mensagem no RTDB → solicitar push à API com ID Token �
 3. Configure credenciais de envio **FCM v1** no EAS, mantendo a chave administrativa fora do repositório e do app.
 4. Gere e instale uma build própria, conceda permissão de notificações e confirme registro do dispositivo.
 
-### iOS
+### iOS — configuração de referência, não validada nesta entrega
 
 1. Configure `ios.bundleIdentifier` e o mesmo projeto EAS.
 2. Configure assinatura/provisionamento e chave de push APNs no EAS, com acesso Apple Developer apropriado.
 3. Instale a build em um iPhone e conceda permissão de notificações.
 
-Para uma development build, instale `expo-dev-client` antes de gerar a build e use o perfil `development` de `eas.json`. Configure as variáveis públicas também no ambiente de build. Consulte o [guia oficial de push](https://docs.expo.dev/push-notifications/push-notifications-setup/) e o [guia de builds](https://docs.expo.dev/build/setup/). As configurações e os testes físicos ainda precisam ser concluídos e comprovados pela equipe.
+Para uma development build, instale `expo-dev-client` antes de gerar a build e use o perfil `development` de `eas.json`. Configure as variáveis públicas também no ambiente de build. Consulte o [guia oficial de push](https://docs.expo.dev/push-notifications/push-notifications-setup/) e o [guia de builds](https://docs.expo.dev/build/setup/). Android foi testado pela equipe e possui evidência de recebimento; iOS permanece não validado.
 
 ### Políticas de destinatários
 
@@ -206,22 +210,73 @@ As regras de [Firestore](firestore.rules) permitem acesso aos próprios dados/di
 
 As regras do [Realtime Database](database.rules.json) exigem autorização em `conversationAccess` para ler e enviar mensagens e verificam `senderId` contra o usuário autenticado. O cliente não pode editar esse espelho; somente a API o atualiza.
 
-Para alterações de integrantes e limite, a API adquire um lock persistente da conversa e executa uma transação Firestore que verifica proprietário, membros e capacidade atual. O limite inclui o proprietário, não pode ficar abaixo da quantidade de integrantes e não depende apenas de botão desabilitado. Requisições concorrentes são serializadas ou rejeitadas para nova tentativa. Na remoção, o acesso RTDB é revogado antes da alteração e o espelho é reconciliado ao terminar. Não há transação atômica entre os dois bancos; falhas de processo podem exigir reconciliação operacional conforme o guia. A proteção ainda requer teste de concorrência para comprovação.
+Para alterações de integrantes e limite, a API adquire um lock persistente da conversa e executa uma transação Firestore que verifica proprietário, membros e capacidade atual. O limite inclui o proprietário, não pode ficar abaixo da quantidade de integrantes e não depende apenas de botão desabilitado. Requisições concorrentes são serializadas ou rejeitadas para nova tentativa. Na remoção, o acesso RTDB é revogado antes da alteração e o espelho é reconciliado ao terminar. Não há transação atômica entre os dois bancos; falhas de processo podem exigir reconciliação operacional conforme descrito em Segurança e limitações. A equipe informa ter validado os cenários funcionais; as capturas de grupo cheio não demonstram, isoladamente, uma tentativa concorrente.
 
 ## Prints e evidências para avaliação
 
-Não há capturas de execução ou evidência de push no repositório neste momento. Adicionar capturas reais, com dados pessoais de teste, e incorporar suas imagens nesta seção antes de entregar:
+As 26 imagens estão em [docs/evidencias](docs/evidencias). As capturas registram a interface no navegador e no Android; as fotos do celular foram preservadas sem alterar seu conteúdo. Cenários dinâmicos, como sincronização, concorrência e abertura por toque no push, são melhor demonstrados por vídeo.
 
-| Evidência | O que deve demonstrar |
+### Autenticação e cadastro
+
+| Navegador | Android |
 | --- | --- |
-| Login e cadastro | Campos exigidos e autenticação |
-| Conversas e usuários | Diretos, grupos e busca |
-| Chat direto e grupo | Envio, recebimento, autoria e sincronização |
-| Criação/edição do grupo | Foto, limite, vagas, política e ações do proprietário |
-| Perfil | Foto e dados cadastrais autorizados |
-| Push Android e iOS | Notificação remota recebida em build própria |
-| Toque no push | Abertura da conversa correta |
-| API pública | `/health` acessível e operação sem servidor local |
+| ![Login no navegador](docs/evidencias/02-login-navegador.jpeg) | ![Login no Android](docs/evidencias/22-login-android.jpeg) |
+| ![Cadastro: foto e dados pessoais no navegador](docs/evidencias/03-cadastro-dados-navegador.jpeg) | ![Cadastro: foto e dados pessoais no Android](docs/evidencias/21-cadastro-dados-android.jpeg) |
+| ![Cadastro: senha e confirmação no navegador](docs/evidencias/04-cadastro-senha-navegador.jpeg) | ![Cadastro: senha e confirmação no Android](docs/evidencias/25-cadastro-senha-android.jpeg) |
+
+### Conversas e mensagens
+
+| Navegador | Android |
+| --- | --- |
+| ![Lista de conversas no navegador](docs/evidencias/01-conversas-navegador.jpeg) | ![Lista de conversas e identificação do proprietário no Android](docs/evidencias/23-conversas-android.jpeg) |
+| ![Chat direto no navegador](docs/evidencias/05-chat-direto-navegador.jpeg) | ![Chat direto no Android](docs/evidencias/19-chat-direto-android.jpeg) |
+| ![Chat de grupo com autoria e destinatário no navegador](docs/evidencias/06-chat-grupo-mencoes-navegador.jpeg) | ![Chat de grupo com destinatário no Android](docs/evidencias/18-chat-grupo-mencoes-android.jpeg) |
+
+Mensagem geral registrada no histórico do grupo no Android:
+
+![Mensagem enviada no grupo Android](docs/evidencias/12-chat-grupo-nova-mensagem-android.jpeg)
+
+Outras capturas: [histórico do grupo Android](docs/evidencias/10-chat-grupo-android.jpeg) e [lista de conversas alternativa](docs/evidencias/24-conversas-android-alternativa.jpeg).
+
+### Perfis, permissões e gerenciamento do grupo
+
+![Perfil consultado no navegador](docs/evidencias/08-perfil-navegador.jpeg)
+
+A visão de integrante exibe a lista de membros sem os controles de gerenciamento do proprietário:
+
+![Visão do integrante no navegador](docs/evidencias/07-grupo-visao-integrante-navegador.jpeg)
+
+| Proprietário e vagas | Grupo na capacidade máxima |
+| --- | --- |
+| ![Proprietário, limite e uma vaga disponível](docs/evidencias/11-grupo-proprietario-android.jpeg) | ![Três integrantes, limite três e zero vagas](docs/evidencias/13-grupo-capacidade-completa-android.jpeg) |
+
+![Seleção de integrante e política no Android](docs/evidencias/16-grupo-selecao-integrante-android.jpeg)
+
+Capturas complementares: [capacidade máxima alternativa](docs/evidencias/14-grupo-capacidade-completa-android-alternativa.jpeg), [campo de edição do limite](docs/evidencias/15-grupo-edicao-limite-android.jpeg) e [grupo com vaga disponível](docs/evidencias/17-grupo-vaga-disponivel-android.jpeg). Esses estados não comprovam sozinhos rejeição pelo backend ou revogação do acesso de um integrante removido.
+
+### Políticas e push Android recebido
+
+![As quatro políticas na tela de gerenciamento](docs/evidencias/20-grupo-politicas-notificacao-android.jpeg)
+
+A central de notificações Android mostra o aplicativo **Connect Chat**, o título **Nova mensagem** e o aviso **Você recebeu uma nova mensagem**:
+
+![Push recebido na central de notificações Android](docs/evidencias/26-push-recebido-android.jpeg)
+
+Essa imagem comprova o recebimento no sistema Android. Não demonstra, isoladamente, as quatro políticas, o estado do app no instante do recebimento ou a navegação ao tocar na notificação. Não há evidência iOS.
+
+### API publicada
+
+![API pública no Render respondendo ao health check](docs/evidencias/09-api-online-health.jpeg)
+
+O endereço público exibido é `https://chat-mobile-iot.onrender.com/health`, com resposta `{"status":"ok"}`. O health check comprova disponibilidade HTTP no momento da captura; não comprova sozinho todos os endpoints ou o desligamento da API local.
+
+### Complementos antes do envio
+
+- Preencher nomes e RMs na seção Integrantes.
+- Informar link acessível da build Android e, se usado, do vídeo de demonstração.
+- Acrescentar demonstração de toque no push, políticas, tentativa com grupo cheio, concorrência e bloqueio de integrante removido. A equipe relata validação desses cenários; suas evidências dinâmicas ainda não estão incorporadas aqui.
+- Conferir se todos os arquivos de evidência estão publicados no GitHub e se os dados pessoais exibidos são de teste ou têm autorização de divulgação.
+- Registrar com o professor a limitação iOS, já que o enunciado exige as duas plataformas.
 
 ## Entrega no Microsoft Teams
 

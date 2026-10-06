@@ -11,6 +11,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.vinimata.connectchat",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -22,7 +24,21 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-notifications", ["expo-image-picker", { "photosPermission": "Permita acesso às fotos para escolher seu avatar e a imagem do grupo.", "microphonePermission": false }]],
-    "extra": { "notificationApiUrl": "https://SUBSTITUA-PELA-SUA-API.example.com" }
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita acesso às fotos para escolher seu avatar e a imagem do grupo.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "extra": {
+      "notificationApiUrl": "https://SUBSTITUA-PELA-SUA-API.example.com",
+      "eas": {
+        "projectId": "0a464264-8890-4b19-9449-47f6412cf328"
+      }
+    }
   }
 }

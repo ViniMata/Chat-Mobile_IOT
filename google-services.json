@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1036109116574",
+    "firebase_url": "https://chat-mobile-firebase-default-rtdb.firebaseio.com",
+    "project_id": "chat-mobile-firebase",
+    "storage_bucket": "chat-mobile-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036109116574:android:d6b1d27957f9e3a0b8b78f",
+        "android_client_info": {
+          "package_name": "com.vinimata.connectchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzty7C5U0--1GMrrqBglCUon0nKEZpkkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
