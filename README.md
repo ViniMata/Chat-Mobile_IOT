@@ -10,7 +10,11 @@ Preencher antes da entrega: nomes completos e RMs de todos os integrantes. Segun
 
 | Nome completo | RM |
 | --- | --- |
-| A preencher | A preencher |
+| Fabiano | 555524 |
+| Lorran | 558982 |
+| Maria | 557478 |
+| Pedro | 556268 |
+| Vinícius | 555200 |
 
 ## Funcionalidades
 
