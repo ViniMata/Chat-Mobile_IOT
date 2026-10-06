@@ -272,19 +272,7 @@ Essa imagem comprova o recebimento no sistema Android. Não demonstra, isoladame
 
 ![API pública no Render respondendo ao health check](docs/evidencias/09-api-online-health.jpeg)
 
-O endereço público exibido é `https://chat-mobile-iot.onrender.com/health`, com resposta `{"status":"ok"}`. O health check comprova disponibilidade HTTP no momento da captura; não comprova sozinho todos os endpoints ou o desligamento da API local.
-
-### Complementos antes do envio
-
-- Preencher nomes e RMs na seção Integrantes.
-- Informar link acessível da build Android e, se usado, do vídeo de demonstração.
-- Acrescentar demonstração de toque no push, políticas, tentativa com grupo cheio, concorrência e bloqueio de integrante removido. A equipe relata validação desses cenários; suas evidências dinâmicas ainda não estão incorporadas aqui.
-- Conferir se todos os arquivos de evidência estão publicados no GitHub e se os dados pessoais exibidos são de teste ou têm autorização de divulgação.
-- Registrar com o professor a limitação iOS, já que o enunciado exige as duas plataformas.
-
-## Entrega no Microsoft Teams
-
-Enviar na tarefa indicada pelo professor o link do GitHub e a URL HTTPS da API. Manter repositório acessível e API disponível durante toda a correção. Máximo de cinco integrantes. Preencher nomes/RMs, URL pública e evidências reais antes do envio; a documentação não substitui a validação funcional de push ou dos demais requisitos.
+O endereço público exibido é `https://chat-mobile-iot.onrender.com/health`, com resposta `{"status":"ok"}`. O health check comprova disponibilidade HTTP no momento da captura;
 
 ## Verificações automatizadas
 
