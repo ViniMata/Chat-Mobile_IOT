@@ -10,11 +10,11 @@ Preencher antes da entrega: nomes completos e RMs de todos os integrantes. Segun
 
 | Nome completo | RM |
 | --- | --- |
-| Fabiano | 555524 |
-| Lorran | 558982 |
-| Maria | 557478 |
-| Pedro | 556268 |
-| Vinícius | 555200 |
+| Fabiano Zague | 555524 |
+| Lorran Dos Santos | 558982 |
+| Maria Clara | 557478 |
+| Pedro Certo | 556268 |
+| Vinícius Matareli | 555200 |
 
 ## Funcionalidades
 
